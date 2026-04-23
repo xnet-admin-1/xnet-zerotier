@@ -1,0 +1,12 @@
+data/
+backups/
+*.apk
+ZeroTierOne/
+ZerotierFix/
+ZerotierFix.bak/
+libzt/
+lwip/
+lwip-contrib/
+nm-plugin/
+ztnet/
+xnet-portal/

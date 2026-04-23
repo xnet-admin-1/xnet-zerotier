@@ -1,0 +1,13 @@
+services:
+  xnet:
+    build: .
+    container_name: xnet
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./data:/data
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
