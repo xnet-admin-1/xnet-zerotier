@@ -3,7 +3,7 @@ RUN apk add --no-cache build-base linux-headers
 COPY externals/ZeroTierOne /src
 WORKDIR /src
 RUN make clean && \
-    sed -i 's/CXXFLAGS=-Wall -O2/CXXFLAGS=-Wall -O3 -march=native -maes/' make-linux.mk && \
+    sed -i 's/CXXFLAGS=-Wall -O2/CXXFLAGS=-Wall -O3 -march=native/' make-linux.mk && \
     sed -i 's/LDFLAGS=-pie/LDFLAGS=-pie -Wl,--allow-multiple-definition/' make-linux.mk && \
     make -j$(nproc) ZT_SSO_SUPPORTED=0 ZT_USE_MINIUPNPC=0 one && \
     strip zerotier-one
