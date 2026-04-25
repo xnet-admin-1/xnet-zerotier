@@ -1,6 +1,5 @@
-ztnet/node_modules
-ztnet/.next
-ztnet/.git
-ztnet/docs
-ZeroTierOne/.git
-ZeroTierOne/build-*
+.git
+data/
+backups/
+*.apk
+externals/ZeroTierOne/.git
