@@ -15,6 +15,9 @@ fi
 # Start xnet daemon
 xnet-one "$ZT_HOME" &
 
+# Start speed test server
+xnet-speed 19980 &
+
 # Wait for API
 echo "[xnet] Waiting for xnet-one..."
 until [ -f "$ZT_HOME/authtoken.secret" ] && wget -qO /dev/null --header "X-ZT1-Auth: $(cat $ZT_HOME/authtoken.secret)" http://127.0.0.1:9993/status 2>/dev/null; do
