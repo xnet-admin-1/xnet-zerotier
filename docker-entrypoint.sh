@@ -34,12 +34,15 @@ for NWID in $(wget -qO- --header "X-ZT1-Auth: $TOKEN" http://127.0.0.1:9993/cont
   xnet-cli -D"$ZT_HOME" join "$NWID" >/dev/null 2>&1 && echo "[xnet] Joined $NWID"
 done
 
+# Firewall: allow all ZT traffic (insert at top to bypass ufw DROP policy)
+iptables -I INPUT 1 -i zte+ -j ACCEPT 2>/dev/null
+iptables -I FORWARD 1 -i zte+ -j ACCEPT 2>/dev/null
+iptables -I FORWARD 2 -o zte+ -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null
+
 # NAT gateway for ZT clients
 DEFAULT_IF=$(ip route show default | awk '{print $5}' | head -1)
 if [ -n "$DEFAULT_IF" ]; then
   iptables -t nat -A POSTROUTING -o "$DEFAULT_IF" -s 10.121.21.0/24 -j MASQUERADE 2>/dev/null
-  iptables -A FORWARD -i zte+ -o "$DEFAULT_IF" -j ACCEPT 2>/dev/null
-  iptables -A FORWARD -i "$DEFAULT_IF" -o zte+ -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null
   echo "[xnet] NAT gateway enabled on $DEFAULT_IF"
 fi
 

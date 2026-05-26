@@ -1,0 +1,44 @@
+name: Smoke Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build portable binary
+        run: |
+          docker run --rm -v $PWD:/src -w /src alpine:3.21 sh -c '
+            apk add --no-cache build-base linux-headers
+            make portable -j$(nproc)
+          '
+
+      - name: Smoke test
+        run: |
+          mkdir -p /tmp/zt-test
+          ./zerotier-portable /tmp/zt-test &
+          ZT_PID=$!
+          sleep 3
+
+          # Read auth token
+          TOKEN=$(cat /tmp/zt-test/authtoken.secret)
+          PORT=$(cat /tmp/zt-test/zerotier-one.port)
+
+          # Verify /planet endpoint responds
+          curl -sf http://127.0.0.1:${PORT}/planet -o /dev/null
+          echo "planet endpoint OK"
+
+          # Create a network via the API
+          NW=$(curl -sf -X POST -H "X-ZT1-Auth: ${TOKEN}" \
+            http://127.0.0.1:${PORT}/controller/network/${$(cat /tmp/zt-test/identity.public | cut -d: -f1)}______)
+          echo "create network OK: ${NW}" | head -c 200
+
+          kill $ZT_PID || true
+          wait $ZT_PID 2>/dev/null || true
+          echo "smoke test passed"
